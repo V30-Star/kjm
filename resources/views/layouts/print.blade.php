@@ -11,22 +11,17 @@
 
     <style>
         /* Kertas A5 – default portrait */
+
         @page {
-            size: A5;
-            margin: 10mm;
-            /* atur margin sesuai kebutuhan */
+            size: A5 landscape;
         }
 
-        /* @page { size: A5 landscape; } */
-
-        /* Area konten agar pas A5 */
         .sheet {
             background: white;
             margin: 0 auto;
             padding: 0;
         }
 
-        /* Hilangkan elemen tak perlu saat print */
         @media print {
             .no-print {
                 display: none !important;
@@ -36,15 +31,23 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-        }
 
-        @media print {
             .sheet {
                 width: auto;
             }
+
+            .print-closing {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-top: .5rem;
+            }
+
+            .force-break-before {
+                break-before: page;
+                page-break-before: always;
+            }
         }
 
-        /* Tabel ringkas untuk nota */
         table.table-sm td,
         table.table-sm th {
             padding: .35rem .5rem !important;

@@ -5,20 +5,31 @@
     @php
         $chunks = $pembelian->items->chunk(12);
         $totalPages = $chunks->count();
-    @endphp
 
+        // kalau item pas mepet (tanda tangan butuh halaman baru)
+        $needsExtraPage = false;
+        if ($chunks->last()->count() > 8) {
+            // misal sisa item terlalu banyak
+            $needsExtraPage = true;
+        }
+
+        if ($needsExtraPage) {
+            $totalPages++;
+        }
+    @endphp
+    
     @foreach ($chunks as $chunkIndex => $chunk)
+        {{-- Header --}}
         <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
                 <div style="font-weight:bold; font-size:18px;">Kembar Jaya Motor</div>
-                <div class="muted" style="font-size:12px;">Jalan Madiun 12, Ganjar Agung, Metro Barat, Metro</div>
+                <div class="muted" style="font-size:12px;">Jalan Madiun 12, Ganjar Agung, Metro Barat, Metro</div>
                 <div class="hr my-1"></div>
 
                 <div class="title">Nota Pembelian</div>
                 <div class="muted">No: {{ $pembelian->no_transaksi }}</div>
                 <div class="muted">Tanggal: {{ \Carbon\Carbon::parse($pembelian->tanggal)->format('d/m/Y') }}</div>
             </div>
-
             <div class="text-end">
                 <div style="font-size:15px;"><strong>Pembeli:</strong> {{ $pembelian->nama_pembeli }}</div>
                 @if ($pembelian->keterangan)
@@ -28,7 +39,7 @@
         </div>
         <div class="hr"></div>
 
-        {{-- Table Items --}}
+        {{-- Tabel Items --}}
         <table class="table table-bordered table-sm">
             <thead class="table-light">
                 <tr>
@@ -51,6 +62,7 @@
                 @endforeach
             </tbody>
 
+            {{-- Footer hanya di halaman terakhir --}}
             @if ($loop->last)
                 <tfoot>
                     <tr>
@@ -71,24 +83,46 @@
             @endif
         </table>
 
-        <div class="d-flex justify-content-between align-items-start mt-3">
-            @if ($loop->last)
-                <div class="text-center" style="width:200px;">
-                    <strong>Penerima</strong>
-                    <div style="height:50px;"></div>
-                    <div>(...........................)</div>
-                </div>
-            @endif
-            <div class="text-end flex-grow-1">
-                <div class="muted">Halaman {{ $chunkIndex + 1 }}/{{ $totalPages }}</div>
-            </div>
-        </div>
+        {{-- Tanda tangan + nomor halaman --}}
 
+        @if ($loop->last)
+            <div id="closingBlock" class="print-closing">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="text-center" style="width:200px;">
+                        <strong>Penerima</strong>
+                        <div style="height:50px;"></div>
+                        <div>(...........................)</div>
+                    </div>
+                    <div class="text-end flex-grow-1">
+                        <div class="muted">Halaman {{ $chunkIndex + 1 }}/{{ $totalPages }}</div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Page break kalau bukan halaman terakhir --}}
         @if (!$loop->last)
             <div style="page-break-after: always;"></div>
         @endif
     @endforeach
 
-
+    {{-- Pesan terima kasih hanya sekali --}}
     <div class="mt-2 text-center muted">Terima kasih</div>
+
+    <script>
+        // Saat print, kalau sisa ruang < 90px, paksa pindah halaman sebelum tanda tangan
+        window.addEventListener('load', () => {
+            const el = document.getElementById('closingBlock');
+            if (!el) return;
+
+            // tinggi halaman kira-kira (Chrome print) — bisa disetel kalau perlu
+            const pageHeight = window.innerHeight;
+            const rect = el.getBoundingClientRect();
+            const remaining = pageHeight - rect.top;
+
+            if (remaining < 90) { // threshold tinggi blok tanda tangan
+                el.classList.add('force-break-before');
+            }
+        });
+    </script>
 @endsection

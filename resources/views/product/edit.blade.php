@@ -24,6 +24,30 @@
                 <form method="POST" action="{{ route('product.update', $p) }}">
                     @csrf @method('PUT')
                     <div class="mb-3">
+                        <label class="form-label">Group Product</label>
+                        <select name="groupproduct_id" class="form-select select2">
+                            <option value="">-- pilih group --</option>
+                            @foreach ($groups as $g)
+                                <option value="{{ $g->id }}"
+                                    {{ old('groupproduct_id', $p->groupproduct_id) == $g->id ? 'selected' : '' }}>
+                                    {{ $g->kode_groupproduct }} - {{ $g->name_groupproduct }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Merek</label>
+                        <select name="merek_id" class="form-select select2">
+                            <option value="">-- pilih merek --</option>
+                            @foreach ($mereks as $m)
+                                <option value="{{ $m->id }}"
+                                    {{ old('merek_id', $p->merek_id) == $m->id ? 'selected' : '' }}>
+                                    {{ $m->kode_merek }} - {{ $m->name_merek }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Nama Barang</label>
                         <input type="text" name="name_barang"
                             class="form-control @error('name_barang') is-invalid @enderror"
@@ -59,30 +83,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Group Product</label>
-                        <select name="groupproduct_id" class="form-select select2">
-                            <option value="">-- pilih group --</option>
-                            @foreach ($groups as $g)
-                                <option value="{{ $g->id }}"
-                                    {{ old('groupproduct_id', $p->groupproduct_id) == $g->id ? 'selected' : '' }}>
-                                    {{ $g->kode_groupproduct }} - {{ $g->name_groupproduct }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Merek</label>
-                        <select name="merek_id" class="form-select select2">
-                            <option value="">-- pilih merek --</option>
-                            @foreach ($mereks as $m)
-                                <option value="{{ $m->id }}"
-                                    {{ old('merek_id', $p->merek_id) == $m->id ? 'selected' : '' }}>
-                                    {{ $m->kode_merek }} - {{ $m->name_merek }}
-                                </option>
-                            @endforeach
-                        </select>
                     </div>
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{{ route('product.index') }}" class="btn btn-outline-secondary">Cancel</a>

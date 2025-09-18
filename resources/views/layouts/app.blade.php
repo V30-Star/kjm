@@ -106,7 +106,7 @@
                     <span class="small fw-bold">{{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}</span>
                 </div>
                 <div class="small text-truncate">
-                    <div class="text-white">{{ auth()->user()->name ?? 'User' }}</div>
+                    <div class="text-white">{{ auth()->user()->username ?? 'User' }}</div>
                     <div class="text-secondary text-truncate">{{ auth()->user()->email ?? '' }}</div>
                 </div>
                 <form method="POST" action="{{ route('logout') }}" class="ms-auto">
