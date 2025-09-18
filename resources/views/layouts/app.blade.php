@@ -90,6 +90,9 @@
                 <a class="nav-link {{ isActive('product*') }}" href="{{ route('product.index') }}">
                     <i class="bi bi-box-seam me-2"></i> Product
                 </a>
+                <a class="nav-link {{ isActive('pembelian*') }}" href="{{ route('pembelian.index') }}">
+                    <i class="bi bi-cart-plus me-2"></i> Pembelian
+                </a>
                 {{-- <a class="nav-link {{ isActive('orders*') }}" href="#">
                     <i class="bi bi-bag-check me-2"></i> Orders
                 </a> --}}

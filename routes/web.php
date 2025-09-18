@@ -5,6 +5,7 @@ use App\Http\Controllers\MerekController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\GroupProductController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -47,4 +48,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/product/{product}/edit', [ProductController::class, 'edit'])->name('product.edit');
     Route::put('/product/{product}',   [ProductController::class, 'update'])->name('product.update');
     Route::delete('/product/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
+
+    Route::get('/pembelian',                [PurchaseController::class, 'index'])->name('pembelian.index');
+    Route::post('/pembelian/data',          [PurchaseController::class, 'data'])->name('pembelian.data');
+    Route::get('/pembelian/create',         [PurchaseController::class, 'create'])->name('pembelian.create');
+    Route::post('/pembelian',               [PurchaseController::class, 'store'])->name('pembelian.store');
+    Route::get('/pembelian/{purchase}/edit', [PurchaseController::class, 'edit'])->name('pembelian.edit');
+    Route::put('/pembelian/{purchase}',     [PurchaseController::class, 'update'])->name('pembelian.update');
+    Route::delete('/pembelian/{purchase}',  [PurchaseController::class, 'destroy'])->name('pembelian.destroy');
+
+    // Select2 AJAX search produk (supaya gampang input banyak item)
+    Route::get('/products/search',          [PurchaseController::class, 'searchProducts'])->name('products.search');
+    // routes/web.php
+    Route::get('pembelian/{pembelian}/print', [PurchaseController::class, 'print'])
+        ->name('pembelian.print');
 });
