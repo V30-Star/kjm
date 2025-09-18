@@ -81,15 +81,18 @@
                 <a class="nav-link {{ isActive('users*') }}" href="{{ route('users.index') }}">
                     <i class="bi bi-people me-2"></i> Users
                 </a>
-                <a class="nav-link {{ isActive('products*') }}" href="#">
-                    <i class="bi bi-box-seam me-2"></i> Products
+                <a class="nav-link {{ isActive('groupproduct*') }}" href="{{ route('groupproduct.index') }}">
+                    <i class="bi bi-collection me-2"></i> Group Product
                 </a>
-                <a class="nav-link {{ isActive('orders*') }}" href="#">
+                <a class="nav-link {{ isActive('merek*') }}" href="{{ route('merek.index') }}">
+                    <i class="bi bi-tags me-2"></i> Merek
+                </a>
+                <a class="nav-link {{ isActive('product*') }}" href="{{ route('product.index') }}">
+                    <i class="bi bi-box-seam me-2"></i> Product
+                </a>
+                {{-- <a class="nav-link {{ isActive('orders*') }}" href="#">
                     <i class="bi bi-bag-check me-2"></i> Orders
-                </a>
-                <a class="nav-link {{ isActive('settings*') }}" href="#">
-                    <i class="bi bi-gear me-2"></i> Settings
-                </a>
+                </a> --}}
             </div>
         </nav>
 

@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MerekController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\GroupProductController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -20,4 +23,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [UsersController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
+
+    Route::get('/groupproduct',            [GroupProductController::class, 'index'])->name('groupproduct.index');
+    Route::post('/groupproduct/data',      [GroupProductController::class, 'dataServer'])->name('groupproduct.data');
+    Route::get('/groupproduct/create',     [GroupProductController::class, 'create'])->name('groupproduct.create');
+    Route::post('/groupproduct',           [GroupProductController::class, 'store'])->name('groupproduct.store');
+    Route::get('/groupproduct/{gp}/edit',  [GroupProductController::class, 'edit'])->name('groupproduct.edit');
+    Route::put('/groupproduct/{gp}',       [GroupProductController::class, 'update'])->name('groupproduct.update');
+    Route::delete('/groupproduct/{gp}',    [GroupProductController::class, 'destroy'])->name('groupproduct.destroy');
+
+    Route::get('/merek',             [MerekController::class, 'index'])->name('merek.index');
+    Route::post('/merek/data',       [MerekController::class, 'dataServer'])->name('merek.data');
+    Route::get('/merek/create',      [MerekController::class, 'create'])->name('merek.create');
+    Route::post('/merek',            [MerekController::class, 'store'])->name('merek.store');
+    Route::get('/merek/{merek}/edit', [MerekController::class, 'edit'])->name('merek.edit');
+    Route::put('/merek/{merek}',     [MerekController::class, 'update'])->name('merek.update');
+    Route::delete('/merek/{merek}',  [MerekController::class, 'destroy'])->name('merek.destroy');
+
+    Route::get('/product',             [ProductController::class, 'index'])->name('product.index');
+    Route::post('/product/data',       [ProductController::class, 'dataServer'])->name('product.data');
+    Route::get('/product/create',      [ProductController::class, 'create'])->name('product.create');
+    Route::post('/product',            [ProductController::class, 'store'])->name('product.store');
+    Route::get('/product/{product}/edit', [ProductController::class, 'edit'])->name('product.edit');
+    Route::put('/product/{product}',   [ProductController::class, 'update'])->name('product.update');
+    Route::delete('/product/{product}', [ProductController::class, 'destroy'])->name('product.destroy');
 });
