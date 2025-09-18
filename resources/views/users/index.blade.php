@@ -11,9 +11,6 @@
                     <h5 class="mb-0">Users</h5>
                     <small class="text-secondary">Manage application users</small>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="#" class="btn btn-success"><i class="bi bi-person-plus me-1"></i> New User</a>
-                </div>
             </div>
         </div>
     </div>
@@ -27,7 +24,8 @@
                 <small class="text-secondary">Filter and manage users</small>
             </div>
             <div>
-                <a href="#" class="btn btn-success"><i class="bi bi-person-plus me-1"></i> New User</a>
+                <a href="{{ route('users.create') }}" class="btn btn-success"><i class="bi bi-person-plus me-1"></i> New
+                    User</a>
             </div>
         </div>
 
@@ -56,6 +54,31 @@
                 </thead>
                 <tbody></tbody>
             </table>
+        </div>
+        <!-- Modal Konfirmasi Delete -->
+        <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0">
+                    <div class="modal-header bg-danger text-white">
+                        <h6 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-1">Are you sure you want to delete this user?</p>
+                        <p class="mb-0"><strong id="delUserName">-</strong></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form id="deleteUserForm" method="POST" action="">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -127,15 +150,23 @@
                     "<'row mt-2'<'col-md-5'i><'col-md-7'p>>",
                 buttons: [{
                         extend: 'print',
-                        className: 'btn btn-outline-secondary btn-sm'
+                        className: 'btn btn-outline-dark btn-sm',
+                        text: '<i class="bi bi-printer me-1"></i> Print'
                     },
                     {
                         extend: 'csv',
-                        className: 'btn btn-outline-secondary btn-sm'
+                        className: 'btn btn-outline-dark btn-sm',
+                        text: '<i class="bi bi-filetype-csv me-1"></i> CSV'
                     },
                     {
                         extend: 'excel',
-                        className: 'btn btn-outline-secondary btn-sm'
+                        className: 'btn btn-outline-dark btn-sm',
+                        text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel'
+                    },
+                    {
+                        extend: 'pdf',
+                        className: 'btn btn-outline-dark btn-sm',
+                        text: '<i class="bi bi-file-earmark-pdf me-1"></i> PDF'
                     }
                 ]
             });
@@ -144,6 +175,17 @@
             $('#userSearch').on('keyup', function() {
                 table.search(this.value).draw();
             });
+        });
+    </script>
+
+    <script>
+        document.getElementById('confirmDeleteModal').addEventListener('show.bs.modal', function(event) {
+            const btn = event.relatedTarget;
+            const route = btn.getAttribute('data-route');
+            const name = btn.getAttribute('data-name');
+
+            document.getElementById('deleteUserForm').setAttribute('action', route);
+            document.getElementById('delUserName').textContent = name;
         });
     </script>
 

@@ -123,6 +123,18 @@
 
     <!-- Main -->
     <div class="container-fluid" style="padding-top: 72px;">
+        @if (session('success'))
+            <div class="alert alert-success border mt-2 mx-2">{{ session('success') }}</div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-danger border mt-2 mx-2">
+                <ul class="mb-0 ps-3">
+                    @foreach ($errors->all() as $e)
+                        <li>{{ $e }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         @yield('headerbar')
         <main class="py-3">
             @yield('content')
