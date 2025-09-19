@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 
 
-class GroupProductController extends Controller
+class GroupproductController extends Controller
 {
   public function index()
   {
