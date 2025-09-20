@@ -85,15 +85,7 @@
                                 </button>
                             </div>
                         </div>
-
-                        <div class="flex items-center justify-between">
-                            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-                                <input type="checkbox" name="remember"
-                                    class="h-4 w-4 rounded border-white/10 bg-white/5 text-emerald-600 focus:ring-emerald-500" />
-                                <span class="text-sm text-slate-300">Remember me</span>
-                            </label>
-                        </div>
-
+                        
                         <button type="submit"
                             class="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 font-medium text-white transition">
                             Sign in
