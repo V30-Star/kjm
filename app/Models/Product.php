@@ -32,7 +32,7 @@ class Product extends Model
   // Relasi opsional
   public function groupproduct()
   {
-    return $this->belongsTo(GroupProduct::class, 'groupproduct_id');
+    return $this->belongsTo(Groupproduct::class, 'groupproduct_id');
   }
   public function merek()
   {

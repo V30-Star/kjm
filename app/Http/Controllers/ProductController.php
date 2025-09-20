@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\GroupProduct;
+use App\Models\Groupproduct;
 use App\Models\Merek;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -72,7 +72,7 @@ class ProductController extends Controller
   public function create()
   {
     return view('product.create', [
-      'groups' => GroupProduct::all(),
+      'groups' => Groupproduct::all(),
       'mereks' => Merek::all()
     ]);
   }
@@ -99,7 +99,7 @@ class ProductController extends Controller
   {
     return view('product.edit', [
       'p' => $product,
-      'groups' => GroupProduct::all(),
+      'groups' => Groupproduct::all(),
       'mereks' => Merek::all()
     ]);
   }

@@ -52,6 +52,8 @@
                 <tbody></tbody>
             </table>
         </div>
+
+        {{-- Delete modal --}}
         <div class="modal fade" id="gpDeleteModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0">
@@ -73,19 +75,9 @@
                 </div>
             </div>
         </div>
-
-        <script>
-            document.getElementById('gpDeleteModal').addEventListener('show.bs.modal', function(e) {
-                const btn = e.relatedTarget;
-                const route = btn.getAttribute('data-route');
-                const name = btn.getAttribute('data-name');
-                document.getElementById('gpDeleteForm').setAttribute('action', route);
-                document.getElementById('gpDelName').textContent = name ?? '-';
-            });
-        </script>
     </div>
 
-    {{-- DataTables + Bootstrap 5 --}}
+    {{-- DataTables --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.7/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.1.2/css/buttons.bootstrap5.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -165,10 +157,17 @@
                 ]
             });
 
-            // Custom search
             $('#gpSearch').on('keyup', function() {
                 table.search(this.value).draw();
             });
+        });
+
+        document.getElementById('gpDeleteModal').addEventListener('show.bs.modal', function(e) {
+            const btn = e.relatedTarget;
+            const route = btn.getAttribute('data-route');
+            const name = btn.getAttribute('data-name');
+            document.getElementById('gpDeleteForm').setAttribute('action', route);
+            document.getElementById('gpDelName').textContent = name ?? '-';
         });
     </script>
 @endsection

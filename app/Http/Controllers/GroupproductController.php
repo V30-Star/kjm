@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\GroupProduct;
+use App\Models\Groupproduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -29,7 +29,7 @@ class GroupproductController extends Controller
     $orderCol = Arr::get($cols, $orderIdx, 'id');
     $orderDir = $r->input('order.0.dir') === 'asc' ? 'asc' : 'desc';
 
-    $q = GroupProduct::query()->select($cols);
+    $q = Groupproduct::query()->select($cols);
 
     $recordsTotal = (clone $q)->count();
 
@@ -80,16 +80,16 @@ class GroupproductController extends Controller
     $v['created_user'] = $user?->username ?? Auth::id();
     $v['updated_user'] = $v['created_user'];
 
-    GroupProduct::create($v);
+    Groupproduct::create($v);
     return redirect()->route('groupproduct.index')->with('success', 'Group created.');
   }
 
-  public function edit(GroupProduct $gp)
+  public function edit(Groupproduct $gp)
   {
     return view('groupproduct.edit', ['gp' => $gp]);
   }
 
-  public function update(Request $r, GroupProduct $gp)
+  public function update(Request $r, Groupproduct $gp)
   {
     $v = $r->validate([
       'kode_groupproduct' => ['required', 'string', 'max:255', Rule::unique('groupproduct', 'kode_groupproduct')->ignore($gp->id)],
@@ -103,7 +103,7 @@ class GroupproductController extends Controller
     return redirect()->route('groupproduct.index')->with('success', 'Group updated.');
   }
 
-  public function destroy(GroupProduct $gp)
+  public function destroy(Groupproduct $gp)
   {
     $gp->delete();
     return redirect()->route('groupproduct.index')->with('success', 'Group deleted.');

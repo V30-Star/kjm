@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GroupProduct extends Model
+class Groupproduct extends Model
 {
   protected $table = 'groupproduct';
   protected $fillable = [
