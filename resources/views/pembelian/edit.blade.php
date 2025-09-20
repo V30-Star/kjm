@@ -121,12 +121,11 @@
             function recalc() {
                 let tQty = 0,
                     subTotal = 0;
-
                 $('#itemsTable tbody tr').each(function() {
                     const qty = parseInt($(this).find('.it-qty').val() || 0);
                     const harga = parseFloat($(this).find('.it-harga').val() || 0);
                     const diskon = Math.max(0, Math.min(100, parseFloat($(this).find('.it-diskon').val() ||
-                        0)));
+                    0)));
                     const sub = qty * harga * (1 - (diskon / 100));
 
                     $(this).find('.it-subtotal').text(rupiah(sub));
@@ -165,15 +164,15 @@
                         data: params => ({
                             term: params.term || ''
                         }),
-                        processResults: data => data // backend sudah return {results:[...]}
+                        processResults: data => data // backend return {results:[...]}
                     },
                     placeholder: 'Cari produk...',
                     allowClear: true,
                     width: 'resolve'
                 });
 
-                if (prefill) {
-                    const opt = new Option(prefill.text, prefill.id, true, true);
+                if (prefill && prefill.id) {
+                    const opt = new Option(prefill.text || ('#' + prefill.id), prefill.id, true, true);
                     $el.append(opt).trigger('change');
                 }
             }
@@ -181,27 +180,26 @@
             function addRow(prefill) {
                 const idx = rowIdx++;
                 const tr = $(`
-    <tr>
-      <td>
-        <select class="form-select it-product" name="items[${idx}][product_id]" required style="width:100%;"></select>
-      </td>
-      <td>
-        <input type="number" class="form-control it-qty" name="items[${idx}][qty]" value="0" min="0" required>
-        <small class="text-muted it-stock-info d-block">Stok tersedia: -</small>
-      </td>
-      <td>
-        <input type="number" step="0.01" class="form-control it-harga" name="items[${idx}][harga_modal]" value="0" required>
-      </td>
-      <td>
-        <input type="number" step="0.01" min="0" max="100" class="form-control it-diskon" name="items[${idx}][diskon]" value="0">
-      </td>
-      <td class="it-subtotal text-end">0,00</td>
-      <td class="text-center">
-        <button type="button" class="btn btn-sm btn-outline-danger it-remove"><i class="bi bi-trash"></i></button>
-      </td>
-    </tr>
-  `);
-
+<tr>
+  <td>
+    <select class="form-select it-product" name="items[${idx}][product_id]" required style="width:100%;"></select>
+  </td>
+  <td>
+    <input type="number" class="form-control it-qty" name="items[${idx}][qty]" value="0" min="0" required>
+    <small class="text-muted it-stock-info d-block">Stok tersedia: -</small>
+  </td>
+  <td>
+    <input type="number" step="0.01" class="form-control it-harga" name="items[${idx}][harga_modal]" value="0" required>
+  </td>
+  <td>
+    <input type="number" step="0.01" min="0" max="100" class="form-control it-diskon" name="items[${idx}][diskon]" value="0">
+  </td>
+  <td class="it-subtotal text-end">0,00</td>
+  <td class="text-center">
+    <button type="button" class="btn btn-sm btn-outline-danger it-remove"><i class="bi bi-trash"></i></button>
+  </td>
+</tr>
+`);
                 $('#itemsTable tbody').append(tr);
 
                 const $sel = tr.find('.it-product');
@@ -212,7 +210,7 @@
 
                 // apply prefill values
                 if (prefill) {
-                    if (prefill.harga != null) tr.find('.it-harga').val(prefill.harga);
+                    if (prefill.harga_modal != null) tr.find('.it-harga').val(prefill.harga_modal);
                     if (prefill.qty != null) tr.find('.it-qty').val(prefill.qty);
                     if (prefill.diskon != null) tr.find('.it-diskon').val(prefill.diskon);
                     if (prefill.stock != null) {
@@ -240,33 +238,86 @@
                 });
 
                 tr.on('input', '.it-qty, .it-harga, .it-diskon', recalc);
+
                 tr.find('.it-remove').on('click', function() {
-                    tr.remove();
+                    const $tbody = $('#itemsTable tbody');
+                    if ($tbody.find('tr').length <= 1) {
+                        tr.find('.it-product').val(null).trigger('change');
+                        tr.find('.it-qty').val(0);
+                        tr.find('.it-harga').val(0);
+                        tr.find('.it-diskon').val(0);
+                        tr.find('.it-stock-info').text('Stok tersedia: -');
+                    } else {
+                        tr.remove();
+                    }
                     recalc();
                 });
 
                 recalc();
             }
 
-            // Prefill dari controller (id, text, qty, harga, diskon)
-            const items = @json($prefillItems ?? []);
-            if (items.length) {
+            // ===== Ambil data dari server =====
+            // 1) Raw old() kalau ada error validasi
+            const oldItemsRaw = @json(old('items', null));
+            // 2) Data dari model untuk halaman edit (dibentuk di controller)
+            const modelItemsRaw = @json($prefillItems ?? []);
+
+            // Normalisasi ke format {id, text, qty, harga_modal, diskon, stock?}
+            function normalizeList(list) {
+                if (!Array.isArray(list)) return [];
+                return list.map(function(it) {
+                    // dukung bentuk dari old() {product_id, product_text,...} maupun dari model {id, text,...}
+                    const id = it.product_id ?? it.id ?? null;
+                    const text = it.product_text ?? it.text ?? null;
+                    const qty = Number(it.qty ?? 0);
+                    const harga_modal = Number(it.harga_modal ?? it.harga ?? 0);
+                    const diskon = Number(it.diskon ?? 0);
+                    const stock = it.stock ?? null;
+                    return {
+                        id,
+                        text,
+                        qty,
+                        harga_modal,
+                        diskon,
+                        stock
+                    };
+                });
+            }
+
+            const items = (oldItemsRaw && Array.isArray(oldItemsRaw) && oldItemsRaw.length > 0) ?
+                normalizeList(oldItemsRaw) :
+                normalizeList(modelItemsRaw);
+
+            // Diskon global dari old() atau dari model (misal $purchase->diskon_percent)
+            const oldDiskonPercent = @json(old('__diskon_percent', $purchase->diskon_percent ?? 0));
+
+            // ===== Build awal =====
+            if (items.length > 0) {
+                $('#itemsTable tbody').empty();
                 items.forEach(function(it) {
                     addRow(it);
                 });
+                $('#diskonPercent').val(oldDiskonPercent ?? 0);
+                recalc();
             } else {
-                addRow();
+                // fallback: kalau somehow item kosong, tampilkan 1 baris
                 addRow();
             }
 
-            $('#btnAddRow').on('click', () => addRow());
-            $('#btnClearRows').on('click', () => {
+            // Actions
+            $('#btnAddRow').on('click', function() {
+                addRow();
+            });
+
+            $('#btnClearRows').on('click', function() {
                 $('#itemsTable tbody').empty();
+                addRow(); // sisakan 1 baris
                 recalc();
             });
+
             $('#diskonPercent').on('input', recalc);
 
-            // Pre-submit cleanup: hapus baris kosong, pastikan minimal 1 item valid
+            // Pre-submit cleanup
             $('#btnSave').on('click', function() {
                 $('#itemsTable tbody tr').each(function() {
                     const $row = $(this);

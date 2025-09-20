@@ -26,17 +26,18 @@
                     <div class="row g-3">
                         <div class="col-md-3">
                             <label class="form-label">Tanggal</label>
-                            <input type="date" name="tanggal" class="form-control" value="{{ now()->format('Y-m-d') }}"
-                                required>
+                            <input type="date" name="tanggal" class="form-control"
+                                value="{{ old('tanggal', now()->format('Y-m-d')) }}" required>
                         </div>
                         <div class="col-md-5">
                             <label class="form-label">Nama Pembeli</label>
-                            <input type="text" name="nama_pembeli" class="form-control" placeholder="Nama Pembeli"
-                                required>
+                            <input type="text" name="nama_pembeli" class="form-control" value="{{ old('nama_pembeli') }}"
+                                placeholder="Nama Pembeli" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Keterangan</label>
-                            <input type="text" name="keterangan" class="form-control" placeholder="(opsional)">
+                            <input type="text" name="keterangan" class="form-control" value="{{ old('keterangan') }}"
+                                placeholder="(opsional)">
                         </div>
                     </div>
                 </div>
@@ -158,6 +159,7 @@
 <tr>
   <td>
     <select class="form-select it-product" name="items[${idx}][product_id]" required style="width:100%;"></select>
+    <input type="hidden" class="it-product-text" name="items[${idx}][product_text]">
   </td>
   <td>
     <input type="number" class="form-control it-qty" name="items[${idx}][qty]" value="0" min="0" required>
@@ -185,28 +187,32 @@
                         data: params => ({
                             term: params.term || ''
                         }),
-                        processResults: data => data // backend sudah return { results: [...] }
+                        processResults: data => data
                     },
                     placeholder: 'Cari produk...',
                     allowClear: true,
                     width: 'resolve'
                 });
 
+                // Prefill from old()
                 if (prefill) {
-                    const option = new Option(prefill.text, prefill.id, true, true);
+                    const option = new Option(prefill.text || ('#' + prefill.id), prefill.id, true, true);
                     $sel.append(option).trigger('change');
-                    tr.find('.it-harga').val(prefill.harga_modal ?? 0);
+                    tr.find('.it-product-text').val(prefill.text || '');
+                    if (prefill.harga_modal != null) tr.find('.it-harga').val(prefill.harga_modal);
+                    if (prefill.qty != null) tr.find('.it-qty').val(prefill.qty);
+                    if (prefill.diskon != null) tr.find('.it-diskon').val(prefill.diskon);
                     if (prefill.stock != null) {
                         tr.find('.it-stock-info').text(`Stok tersedia: ${prefill.stock}`);
                         tr.find('.it-qty').attr('max', prefill.stock);
                     }
                 }
 
+                // Save label on select
                 $sel.on('select2:select', function(e) {
                     const data = e.params.data || {};
-                    if (data.harga_modal !== undefined) {
-                        tr.find('.it-harga').val(data.harga_modal);
-                    }
+                    tr.find('.it-product-text').val(data.text || '');
+                    if (data.harga_modal !== undefined) tr.find('.it-harga').val(data.harga_modal);
                     if (data.stock !== undefined) {
                         tr.find('.it-stock-info').text(`Stok tersedia: ${data.stock}`);
                         tr.find('.it-qty').attr('max', data.stock);
@@ -215,33 +221,75 @@
                 });
 
                 $sel.on('select2:clear', function() {
+                    tr.find('.it-product-text').val('');
                     tr.find('.it-stock-info').text('Stok tersedia: -');
                     tr.find('.it-qty').removeAttr('max');
                 });
 
                 tr.on('input', '.it-qty, .it-harga, .it-diskon', recalc);
+
                 tr.find('.it-remove').on('click', function() {
-                    tr.remove();
+                    const $tbody = $('#itemsTable tbody');
+                    if ($tbody.find('tr').length <= 1) {
+                        tr.find('.it-product').val(null).trigger('change');
+                        tr.find('.it-product-text').val('');
+                        tr.find('.it-qty').val(0);
+                        tr.find('.it-harga').val(0);
+                        tr.find('.it-diskon').val(0);
+                        tr.find('.it-stock-info').text('Stok tersedia: -');
+                    } else {
+                        tr.remove();
+                    }
                     recalc();
                 });
 
                 recalc();
             }
 
+            // ===== SAFER: pass raw old('items') only, then map in JS =====
+            const oldItemsRaw = @json(old('items', []));
+            const oldItems = (Array.isArray(oldItemsRaw) ? oldItemsRaw : []).map(function(it) {
+                return {
+                    id: (it && it.product_id) ?? null,
+                    text: (it && it.product_text) ?? null,
+                    qty: Number((it && it.qty) ?? 0),
+                    harga_modal: Number((it && it.harga_modal) ?? 0),
+                    diskon: Number((it && it.diskon) ?? 0),
+                    stock: (it && it.stock) ?? null
+                };
+            });
+
+            const oldDiskonPercent = @json(old('__diskon_percent', null));
+
+            // Initial build
+            if (oldItems.length > 0) {
+                $('#itemsTable tbody').empty();
+                oldItems.forEach(function(it) {
+                    addRow(it);
+                });
+                if (oldDiskonPercent !== null) {
+                    $('#diskonPercent').val(oldDiskonPercent);
+                }
+                recalc();
+            } else {
+                addRow(); // fresh form: 1 blank row
+            }
+
+            // Actions
             $('#btnAddRow').on('click', function() {
                 addRow();
             });
+
             $('#btnClearRows').on('click', function() {
                 $('#itemsTable tbody').empty();
+                addRow(); // keep at least one row
                 recalc();
             });
 
-            addRow();
-            addRow();
-            addRow();
             $('#diskonPercent').on('input', recalc);
 
             $('#btnSave').on('click', function() {
+                // prune invalid rows before submit
                 $('#itemsTable tbody tr').each(function() {
                     const $row = $(this);
                     const prod = $row.find('.it-product').val();
@@ -250,13 +298,16 @@
                         $row.remove();
                     }
                 });
+
                 if ($('#itemsTable tbody tr').length === 0) {
                     alert('Tambah minimal 1 item yang valid (produk dipilih & qty >= 1).');
                     return;
                 }
+
                 $('#itemsTable tbody .it-product').attr('required', true);
                 $('#purchaseForm')[0].submit();
             });
         })();
     </script>
+
 @endsection
