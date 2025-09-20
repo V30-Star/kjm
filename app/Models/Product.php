@@ -30,7 +30,7 @@ class Product extends Model
   ];
 
   // Relasi opsional
-  public function groupProduct()
+  public function groupproduct()
   {
     return $this->belongsTo(GroupProduct::class, 'groupproduct_id');
   }

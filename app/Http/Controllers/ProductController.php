@@ -43,7 +43,7 @@ class ProductController extends Controller
 
     $recordsFiltered = (clone $q)->count();
 
-    $rows = $q->with(['groupProduct', 'merek'])
+    $rows = $q->with(['groupproduct', 'merek'])
       ->orderBy($orderCol, $orderDir)
       ->skip($start)->take($length)->get()
       ->map(function ($p) {
@@ -53,7 +53,7 @@ class ProductController extends Controller
           'qty'          => $p->qty,
           'harga_modal'  => number_format($p->harga_modal, 2, ',', '.'),
           'harga_akhir'  => number_format($p->harga_akhir, 2, ',', '.'),
-          'groupproduct_id' => optional($p->groupProduct)->name_groupproduct,
+          'groupproduct_id' => optional($p->groupproduct)->name_groupproduct,
           'merek_id'     => optional($p->merek)->name_merek,
           'created_date' => optional($p->created_date)->format('Y-m-d H:i'),
           'actions'      => view('product.partials.actions', ['p' => $p])->render(),
